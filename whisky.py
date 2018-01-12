@@ -1,28 +1,31 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 
+import argparse # argv
 import requests # http requests
 import re       # regular expressions
-import time
+import time     # delay
 
+# regular expressions
 html_link_re = 'href[ \t]*="(.+?)"' # matches 'href = "<link>"'
-
 remote_link_re = '^http.*' # string starts with 'http'
 
 
 #
-# TODO: visited queue, user input (max_jumps, delay, first url, etc..)
+# TODO: visited queue, filter for extensions (.ico, .jpg, etc..)
 #
 
+# parse arguments
+parser = argparse.ArgumentParser(description='whisky - a curious spider')
+parser.add_argument('max_req', metavar='max-req', type=int, help='max number of requests')
+parser.add_argument('delay', metavar='delay', type=float, help='delay between requests (seconds)')
+parser.add_argument('url_list', metavar='url', type=str, nargs='+', help='list of URLs')
 
-max_jumps = 30
-
-delay_between_requests = 0.1 # seconds
-
+args = parser.parse_args()
+max_jumps = args.max_req
+delay_between_requests = args.delay # seconds
+queue = args.url_list
 
 jump_counter = 0
-
-queue = ['']
-
 while ((jump_counter < max_jumps) and (len(queue) > 0)):
 	
 	# pop from queue
@@ -30,7 +33,7 @@ while ((jump_counter < max_jumps) and (len(queue) > 0)):
 	
 	try:
 		# http request
-		print ('sending request for ' + current_request)
+		print ('> sending request for ' + current_request)
 		page = requests.get(current_request);
 
 		# match links
@@ -50,11 +53,10 @@ while ((jump_counter < max_jumps) and (len(queue) > 0)):
 			queue.append(hit)
 
 		# increment jump counter
-		max_jumps = max_jumps + 1
+		jump_counter = jump_counter + 1
 		
-		break
-	except error:
-		print ('error:' + error)
+	except:
+		print ('*** request error for ' + current_request)
 		
 	# delay
 	time.sleep(delay_between_requests)
