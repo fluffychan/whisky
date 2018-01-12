@@ -9,9 +9,8 @@ import time     # delay
 html_link_re = 'href[ \t]*="(.+?)"' # matches 'href = "<link>"'
 remote_link_re = '^http.*' # string starts with 'http'
 
-
 #
-# TODO: visited queue, filter for extensions (.ico, .jpg, etc..)
+# TODO: filter for extensions (.ico, .jpg, etc..), parse robot.txt
 #
 
 # parse arguments
@@ -24,6 +23,9 @@ args = parser.parse_args()
 max_jumps = args.max_req
 delay_between_requests = args.delay # seconds
 queue = args.url_list
+
+# set of visited URLs
+visited_urls = set()
 
 jump_counter = 0
 while ((jump_counter < max_jumps) and (len(queue) > 0)):
@@ -51,9 +53,11 @@ while ((jump_counter < max_jumps) and (len(queue) > 0)):
 			hit = re.sub('http:/','http://',hit)
 			hit = re.sub('https:/','https://',hit)
 
-			# add link to queue
-			print ('+ adding ' + hit)
-			queue.append(hit)
+			# add new URL to queue
+			if (not hit in visited_urls):
+				print ('+ adding ' + hit)
+				queue.append(hit)
+				visited_urls.add(hit)
 
 		# increment jump counter
 		jump_counter = jump_counter + 1
