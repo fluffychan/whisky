@@ -47,6 +47,9 @@ while ((jump_counter < max_jumps) and (len(queue) > 0)):
 
 			# remove multiple backslashes
 			hit = re.sub('/+','/',hit)
+			# restore http:// and https://
+			hit = re.sub('http:/','http://',hit)
+			hit = re.sub('https:/','https://',hit)
 
 			# add link to queue
 			print ('+ adding ' + hit)
